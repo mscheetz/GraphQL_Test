@@ -38,8 +38,12 @@ def test_add_author_mutation_failure() -> None:
             "query": """
             mutation {
               addAuthor(name: "Cormac McCarthy") {
-                id
-                name
+                success
+                message
+                author {
+                    id
+                    name
+                }
               }
             }
             """
@@ -48,9 +52,9 @@ def test_add_author_mutation_failure() -> None:
 
     assert response.status_code == 200
     data = response.json()["data"]
-    assert data is None
-    errors = response.json()["errors"]
-    assert errors[0]["message"] == "Author with name Cormac McCarthy exists"
+    assert data["addAuthor"]["success"] == False
+    assert data["addAuthor"]["message"] == "Author with name Cormac McCarthy exists"
+    assert data["addAuthor"]["author"] == None
 
 def test_add_author_mutation_success() -> None:
     response = client.post(
@@ -59,8 +63,12 @@ def test_add_author_mutation_success() -> None:
             "query": """
             mutation {
               addAuthor(name: "Mario Puzo") {
-                id
-                name
+                success
+                message
+                author {
+                    id
+                    name
+                }
               }
             }
             """
@@ -69,8 +77,9 @@ def test_add_author_mutation_success() -> None:
 
     assert response.status_code == 200
     data = response.json()["data"]
-    assert data["addAuthor"]["name"] == "Mario Puzo"
-    assert data["addAuthor"]["id"] == 3
+    assert data["addAuthor"]["success"] == True
+    assert data["addAuthor"]["author"]["name"] == "Mario Puzo"
+    assert data["addAuthor"]["author"]["id"] == 3
 
 def test_add_book_mutation_failure() -> None:
     response = client.post(
@@ -79,8 +88,15 @@ def test_add_book_mutation_failure() -> None:
             "query": """
             mutation {
               addBook(title: "The Godfather", authorId: 100) {
-                title
-                author { name }
+                success
+                message
+                book {
+                    id
+                    title
+                    author {
+                        name
+                    }
+                }
               }
             }
             """
@@ -89,9 +105,9 @@ def test_add_book_mutation_failure() -> None:
 
     assert response.status_code == 200
     data = response.json()["data"]
-    assert data is None
-    errors = response.json()["errors"]
-    assert errors[0]["message"] == "Author with id 100 does not exist"
+    assert data["addBook"]["success"] == False
+    assert data["addBook"]["message"] == "Author with id 100 does not exist"
+    assert data["addBook"]["book"] == None
 
 def test_add_book_mutation_success() -> None:
     response = client.post(
@@ -100,8 +116,15 @@ def test_add_book_mutation_success() -> None:
             "query": """
             mutation {
               addBook(title: "The Godfather", authorId: 3) {
-                title
-                author { name }
+                success
+                message
+                book {
+                    id
+                    title
+                    author {
+                        name
+                    }
+                }
               }
             }
             """
@@ -109,6 +132,34 @@ def test_add_book_mutation_success() -> None:
     )
 
     assert response.status_code == 200
-    data = response.json()["data"]    
-    assert data["addBook"]["author"]["name"] == "Mario Puzo"
-    assert data["addBook"]["title"] == "The Godfather"
+    data = response.json()["data"]
+    assert data["addBook"]["success"] == True
+    assert data["addBook"]["book"]["author"]["name"] == "Mario Puzo"
+    assert data["addBook"]["book"]["title"] == "The Godfather"
+
+def test_add_book_mutation_double_add_failure() -> None:
+    response = client.post(
+        "/graphql",
+        json={
+            "query": """
+            mutation {
+              addBook(title: "The Godfather", authorId: 3) {
+                success
+                message
+                book {
+                    id
+                    title
+                    author {
+                        name
+                    }
+                }
+              }
+            }
+            """
+        },
+    )
+
+    assert response.status_code == 200
+    data = response.json()["data"]
+    assert data["addBook"]["success"] == False
+    assert data["addBook"]["book"] == None
