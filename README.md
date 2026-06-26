@@ -24,6 +24,14 @@ Open:
 http://127.0.0.1:8000/graphql
 ```
 
+### Client
+
+To run the client, in another termial run
+```bash
+source env/bin/activate
+python src/client.py
+```
+
 ## Queries
 
 Get books:
