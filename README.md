@@ -93,3 +93,10 @@ mutation {
     }
 }
 ```
+
+## Tests
+
+Run Tests
+```bash
+pytest -v
+```
