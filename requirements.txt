@@ -1,5 +1,5 @@
 fastapi==0.138.1
-strawberry-graphql[fastapi]==0.253.1
-uvicorn[standard]==0.34.0
+strawberry-graphql==0.319.0
+uvicorn==0.34.0
 pytest==8.3.4
 httpx==0.28.1
